@@ -19,4 +19,7 @@ Trait ApiResponser
     protected function showOne(Model $data, $code = 200) {
         return response()->json([ 'data' => $data], $code);
     }
+    protected function showMessage($message, $code=200) {
+        return $this->successResponse(['date' => $message], $code);
+    }
 }
