@@ -3,12 +3,15 @@
 namespace App;
 
 use App\Scopes\BuyerScope;
+use App\Transformers\BuyerTransformer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Buyer extends User
 {
     use SoftDeletes;
+
+    public $transformer = BuyerTransformer::class;
 
     protected $dates = ['deleted_at'];
 
