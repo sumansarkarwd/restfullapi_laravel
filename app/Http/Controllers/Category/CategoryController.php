@@ -4,11 +4,19 @@ namespace App\Http\Controllers\Category;
 
 use App\Category;
 use App\Http\Controllers\ApiController;
+use App\Transformers\CategoryTransformer;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class CategoryController extends ApiController
 {
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->middleware('transform.input:' . CategoryTransformer::class)->only(['store', 'update']);
+    }
+    
     /**
      * Display a listing of the resource.
      *
@@ -35,17 +43,6 @@ class CategoryController extends ApiController
         $this->validate($request, $rules);
         $newCategory = Category::create($request->all());
         return $this->showOne($newCategory, 201);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Category  $category
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Category $category)
-    {
-        return $this->showOne($category);
     }
 
     /**
