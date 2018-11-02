@@ -32,12 +32,25 @@ class UserTransformer extends TransformerAbstract
             ]
         ];
     }
+    public static function originalAttribute($index) {
+        $attributes = [
+            'id' => 'identifier',
+            'email' => 'email_id',
+            'password' => 'password',
+            'verified' => 'isVerified',
+            'admin' => 'isAdmin',
+            'created_at' => 'creationDate',
+            'updated_at' => 'lastChanged',
+            'deleted_at' => 'deletedDate',
+        ];
+    }
 
     public static function transformedAttribute($index) {
         $attributes = [
             'id' => 'identifier',
             'name' => 'name',
             'email' => 'email_id',
+            'password' => 'password',
             'verified' => 'isVerified',
             'admin' => 'isAdmin',
             'created_at' => 'creationDate',
