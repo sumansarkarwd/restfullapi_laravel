@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Seller;
 use App\Http\Controllers\ApiController;
 use App\Product;
 use App\Seller;
+use App\Transformers\SellerTransformer;
 use Illuminate\Foundation\Testing\HttpException;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -12,6 +13,13 @@ use Illuminate\Support\Facades\Storage;
 
 class SellerProductController extends ApiController
 {
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->middleware('transform.input:' . SellerTransformer::class)->only(['store', 'update']);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -21,16 +29,6 @@ class SellerProductController extends ApiController
     {
         $products = $seller->products;
         return $this->showAll($products);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -55,28 +53,6 @@ class SellerProductController extends ApiController
 
         $product = Product::create($data);
         return $this->showOne($product);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Seller  $seller
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Seller $seller)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Seller  $seller
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Seller $seller)
-    {
-        //
     }
 
     /**

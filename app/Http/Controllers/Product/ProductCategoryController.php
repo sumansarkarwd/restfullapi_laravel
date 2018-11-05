@@ -5,11 +5,19 @@ namespace App\Http\Controllers\Product;
 use App\Category;
 use App\Http\Controllers\ApiController;
 use App\Product;
+use App\Transformers\ProductTransformer;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class ProductCategoryController extends ApiController
 {
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->middleware('transform.input:' . ProductTransformer::class)->only(['update', 'update']);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -19,49 +27,6 @@ class ProductCategoryController extends ApiController
     {
         $categories = $product->categories;
         return $this->showAll($categories);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Product $product)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Product $product)
-    {
-        //
     }
 
     /**
@@ -85,7 +50,7 @@ class ProductCategoryController extends ApiController
      */
     public function destroy(Product $product, Category $category)
     {
-        if(!$product->categories()->find($category->id)) {
+        if (!$product->categories()->find($category->id)) {
             return $this->errorResponse('The specified category is not a category of this product', 404);
         }
         $product->categories()->detach($category->id);

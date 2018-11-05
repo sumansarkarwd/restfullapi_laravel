@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 
 class ProductController extends ApiController
 {
+
     /**
      * Display a listing of the resource.
      *
