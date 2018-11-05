@@ -13,6 +13,7 @@ use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
+use Illuminate\Session\TokenMismatchException;
 
 class Handler extends ExceptionHandler
 {
@@ -57,7 +58,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        if($exception instanceof ValidationException) {
+        if ($exception instanceof ValidationException) {
             return $this->convertValidationExceptionToResponse($exception, $request);
         } elseif ($exception instanceof ModelNotFoundException) {
             return $this->errorResponse('Does not exists any model with the specified indentifier', 404);
@@ -73,11 +74,13 @@ class Handler extends ExceptionHandler
             return $this->errorResponse($exception->getMessage(), $exception->getStatusCode());
         } elseif ($exception instanceof QueryException) {
             $errorCode = $exception->errorInfo[1];
-            if($errorCode == 1451) {
+            if ($errorCode == 1451) {
                 return $this->errorResponse('Cannot remove this resource parmanently. It is retlated with any other resource', 409);
             }
+        } elseif ($exception instanceof TokenMismatchException) {
+            return redirect()->back()->withInput($request->input());
         }
-        if(config('app.debug')) {
+        if (config('app.debug')) {
             return parent::render($request, $exception);
         }
         return $this->errorResponse('Unexpected Exception. Try again later', 500);
@@ -86,6 +89,28 @@ class Handler extends ExceptionHandler
     protected function convertValidationExceptionToResponse(ValidationException $e, $request)
     {
         $errors = $e->validator->errors()->getMessages();
+        if ($this->isFrontend($request)) {
+            return $request->ajax() ? $this->errorResponse($errors, 422) : redirect()->back()->withInputs($request->inputs)->withErrors($errors);
+        }
         return $this->errorResponse($errors, 422);
+    }
+    /**
+     * Convert an authentication exception into a response.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Auth\AuthenticationException  $exception
+     * @return \Illuminate\Http\Response
+     */
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        if ($this->isFrontend($request)) {
+            return redirect()->guest('login');
+        }
+        return $this->errorresponse('Unauthenticated', 401);
+    }
+
+    private function isFrontend($request)
+    {
+        return $request->acceptsHtml() && collect($request->route()->middleware())->contains('web');
     }
 }
